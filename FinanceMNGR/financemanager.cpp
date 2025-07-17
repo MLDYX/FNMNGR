@@ -81,29 +81,72 @@ bool FinanceManager::removeTransaction(int index) {
 
 // Generowanie raportu finansowego
 void FinanceManager::generateReport(const std::string& startDate, const std::string& endDate) const {
+    const int width = 50;
+
+    std::map<IncomeType, double> incomeSums;
+    std::map<ExpenseType, double> expenseSums;
     double totalIncome = 0.0;
     double totalExpense = 0.0;
+
     for (const auto& t : transactions) {
         if (t->getDate() >= startDate && t->getDate() <= endDate) {
-            if (t->getType() == "Dochód") {
-                totalIncome += t->getAmount();
+            if (t->getType() == "Dochod") {
+                const Income* income = dynamic_cast<const Income*>(t.get());
+                if (income) {
+                    incomeSums[income->getIncomeType()] += income->getAmount();
+                    totalIncome += income->getAmount();
+                }
             }
             else if (t->getType() == "Wydatek") {
-                totalExpense += t->getAmount();
+                const Expense* expense = dynamic_cast<const Expense*>(t.get());
+                if (expense) {
+                    expenseSums[expense->getExpenseType()] += expense->getAmount();
+                    totalExpense += expense->getAmount();
+                }
             }
         }
     }
-    std::cout << "Raport od " << startDate << " do " << endDate << ":\n";
-    std::cout << "Ca³kowity dochód: " << totalIncome << " z³\n";
-    std::cout << "Ca³kowity wydatek: " << totalExpense << " z³\n";
-    std::cout << "Saldo: " << (totalIncome - totalExpense) << " z³\n";
+
+    auto center = [width](const std::string& text) {
+        int pad = (width - static_cast<int>(text.size())) / 2;
+        if (pad > 0) return std::string(pad, ' ') + text;
+        return text;
+        };
+
+    auto row = [](const std::string& label, double value) {
+        std::ostringstream oss;
+        oss << "  " << std::left << std::setw(12) << label << " " << std::right << std::setw(12) << std::fixed << std::setprecision(2) << value << " zl";
+        return oss.str();
+        };
+
+    std::cout << center("RAPORT FINANSOWY") << "\n";
+    std::cout << center("Okres: " + startDate + " - " + endDate) << "\n\n";
+
+    std::cout << center("DOCHODY") << "\n";
+    std::cout << row("Praca:", incomeSums[IncomeType::Work]) << "\n";
+    std::cout << row("Dodatkowe:", incomeSums[IncomeType::Additional]) << "\n";
+    std::cout << row("Suma:", totalIncome) << "\n\n";
+
+    std::cout << center("WYDATKI") << "\n";
+    std::cout << row("Rachunki:", expenseSums[ExpenseType::Bills]) << "\n";
+    std::cout << row("Jedzenie:", expenseSums[ExpenseType::Food]) << "\n";
+    std::cout << row("Ubrania:", expenseSums[ExpenseType::Clothes]) << "\n";
+    std::cout << row("Inne:", expenseSums[ExpenseType::Other]) << "\n";
+    std::cout << row("Suma:", totalExpense) << "\n\n";
+
+    double saldo = totalIncome - totalExpense;
+    std::cout << center("SALDO:") << "\n";
+    std::cout << row("", saldo) << "\n\n";
 }
+
+
+
 
 // Obliczenie salda – dochody sumujemy, wydatki odejmujemy
 double FinanceManager::getBalance() const {
     double balance = 0.0;
     for (const auto& t : transactions) {
-        if (t->getType() == "Dochód")
+        if (t->getType() == "Dochod")
             balance += t->getAmount();
         else if (t->getType() == "Wydatek")
             balance -= t->getAmount();
@@ -115,7 +158,7 @@ double FinanceManager::getBalance() const {
 double FinanceManager::getIncomeTotal(IncomeType type) const {
     double total = 0.0;
     for (const auto& t : transactions) {
-        if (t->getType() == "Dochód") {
+        if (t->getType() == "Dochod") {
             const Income* income = dynamic_cast<const Income*>(t.get());
             if (income && income->getIncomeType() == type) {
                 total += income->getAmount();
@@ -208,7 +251,7 @@ bool FinanceManager::loadFromDatabase() {
 
             double amount = std::stod(amountStr);
 
-            if (type == "Dochód") {
+            if (type == "Dochod") {
                 IncomeType incomeType = IncomeType::Additional; // domyœlnie
                 if (subtype == "Praca") incomeType = IncomeType::Work;
                 addIncome(date, desc, amount, incomeType);

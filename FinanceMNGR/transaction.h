@@ -20,7 +20,7 @@ enum class ExpenseType {
     Other
 };
 
-// Abstrakcyjna klasa bazowa reprezentuj¹ca transakcjê
+// Klasa bazowa reprezentuj¹ca transakcjê
 class Transaction {
 protected:
     std::string date;

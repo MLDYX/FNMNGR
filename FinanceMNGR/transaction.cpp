@@ -51,7 +51,7 @@ Income::Income(const std::string& date, const std::string& desc, double amt, Inc
 }
 
 std::string Income::getType() const {
-    return "Dochód";
+    return "Dochod";
 }
 
 std::string Income::getSubtype() const {

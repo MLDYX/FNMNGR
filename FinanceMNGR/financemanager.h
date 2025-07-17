@@ -26,10 +26,10 @@ public:
     // Dodaje nowy wydatek
     void addExpense(const std::string& date, const std::string& desc, double amt, ExpenseType type);
 
-    // Dodaje now¹ transakcjê (w³aœciciel obiektu zostaje przekazany do FinanceManagera)
+    // Dodaje now¹ transakcje
     void addTransaction(Transaction* t);
 
-    // Wypisuje transakcje na podany strumieñ (domyœlnie std::cout)
+    // Wypisuje transakcje na podany strumieñ
     void listTransactions() const;
 
     // Wypisuje transakcje w podanym zakresie dat
@@ -44,7 +44,7 @@ public:
     // Generuje raport finansowy za podany okres
     void generateReport(const std::string& startDate, const std::string& endDate) const;
 
-    // Oblicza saldo (suma dochodów minus suma wydatków)
+    // Oblicza saldo
     double getBalance() const;
 
     // Zwraca sumê dla konkretnego typu dochodu
@@ -69,7 +69,7 @@ public:
     // Funkcja zaprzyjaŸniona – umo¿liwia wypisanie stanu menad¿era finansów
     friend std::ostream& operator<<(std::ostream& os, const FinanceManager& fm);
 
-    // Nowa metoda zwracaj¹ca listê transakcji
+    // Metoda zwracaj¹ca listê transakcji
     const std::vector<std::unique_ptr<Transaction>>& getTransactions() const;
 };
 
